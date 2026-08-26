@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleep Planner</title>
+  <style>
+    body { font-family: sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding: 2rem; }
+    .card { background: #1e293b; padding: 2rem; border-radius: 12px; max-width: 400px; margin: 0 auto; }
+    button { background: #38bdf8; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Sleep Cycle Planner</h2>
+    <p>If you go to bed right now, wake up at:</p>
+    <button onclick="calculateCycles()">Calculate Wake Times</button>
+    <ul id="results" style="list-style: none; padding: 0; margin-top: 1rem;"></ul>
+  </div>
+
+  <script>
+    function calculateCycles() {
+      const now = new Date();
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+      // 90-minute cycle calculation
+      for (let i = 3; i <= 6; i++) {
+        const wakeTime = new Date(now.getTime() + (i * 90 + 14) * 60000); // 14 min average to fall asleep
+        const timeStr = wakeTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        results.innerHTML += `<li style="margin: 8px 0;">${i} Cycles (${i * 1.5} hrs): <strong>${timeStr}</strong></li>`;
+      }
+    }
+  </script>
+</body>
+</html>
