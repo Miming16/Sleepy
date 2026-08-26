@@ -1,370 +1,1096 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sleepy - Advanced Sleep Cycle Planner</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
-    <style>
-        :root {
-            /* Common variables */
-            --ease: cubic-bezier(0.23, 1, 0.32, 1);
-            --radius-main: 24px;
-            --radius-btn: 12px;
-            
-            /* Dark Mode (Default) */
-            --bg-page: #030712;
-            --bg-accent: linear-gradient(135deg, #4f46e5 0%, #a855f7 100%);
-            --card-base: rgba(30, 41, 59, 0.5);
-            --card-border: rgba(255, 255, 255, 0.06);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --input-bg: #0f172a;
-            --result-best: #34d399;
-            --result-ok: #a855f7;
-            --icon-sun: opacity(0);
-            --icon-moon: opacity(1);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restful — Sleep Calculator & Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ease:cubic-bezier(.22,1,.36,1);
+  --r-xl:28px; --r-lg:20px; --r-md:14px; --r-sm:10px;
 
-        [data-theme="light"] {
-            /* Light Mode */
-            --bg-page: #f1f5f9;
-            --bg-accent: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-            --card-base: rgba(255, 255, 255, 0.6);
-            --card-border: rgba(0, 0, 0, 0.05);
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --input-bg: #ffffff;
-            --result-best: #10b981;
-            --result-ok: #8b5cf6;
-            --icon-sun: opacity(1);
-            --icon-moon: opacity(0);
-        }
+  /* ---- Dusk → Dawn palette (dark, default) ---- */
+  --bg:#080B18;
+  --bg-grad:radial-gradient(ellipse 900px 500px at 15% -10%, rgba(91,75,138,.35), transparent 60%),
+            radial-gradient(ellipse 700px 500px at 100% 0%, rgba(242,166,90,.10), transparent 55%),
+            #080B18;
+  --card:#111729;
+  --card-2:#161d33;
+  --border:rgba(255,255,255,.07);
+  --border-strong:rgba(255,255,255,.14);
+  --ink:#F5F3FF;
+  --ink-dim:#B7BEDA;
+  --ink-faint:#7B84A8;
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif; }
+  --dusk:#5B4B8A;
+  --twilight:#8172C4;
+  --dawn:#F2A65A;
+  --dawn-soft:#F6C177;
+  --blush:#EE8FA6;
 
-        body {
-            background-color: var(--bg-page);
-            background-image: radial-gradient(at 10% 10%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
-                              radial-gradient(at 90% 90%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            transition: background-color 0.4s var(--ease), color 0.4s var(--ease);
-        }
+  --good:#6FCF97;
+  --good-soft:rgba(111,207,151,.14);
+  --warn:#F2C572;
+  --warn-soft:rgba(242,197,114,.14);
+  --alert:#EF8686;
+  --alert-soft:rgba(239,134,134,.14);
 
-        /* --- Theme Toggle Style --- */
-        .theme-toggle-container {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            z-index: 100;
-        }
+  --track:rgba(255,255,255,.08);
+  --shadow:0 30px 60px -20px rgba(0,0,0,.55);
+  --font-display:'Space Grotesk', 'Inter', sans-serif;
+  --font-body:'Inter', -apple-system, sans-serif;
+}
 
-        .theme-toggle-btn {
-            background: var(--card-base);
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-            padding: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s var(--ease);
-        }
+[data-theme="light"]{
+  --bg:#F3F4FB;
+  --bg-grad:radial-gradient(ellipse 900px 500px at 10% -10%, rgba(129,114,196,.16), transparent 60%),
+            radial-gradient(ellipse 700px 500px at 100% 0%, rgba(242,166,90,.14), transparent 55%),
+            #F3F4FB;
+  --card:#FFFFFF;
+  --card-2:#F8F8FE;
+  --border:rgba(35,40,66,.08);
+  --border-strong:rgba(35,40,66,.16);
+  --ink:#20223B;
+  --ink-dim:#5A5F82;
+  --ink-faint:#8B90AE;
 
-        .theme-toggle-btn:hover { transform: scale(1.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+  --dusk:#6E5AA8;
+  --twilight:#8172C4;
+  --dawn:#DB8A4C;
+  --dawn-soft:#E8A968;
+  --blush:#DD7791;
 
-        .theme-icon {
-            width: 20px;
-            height: 20px;
-            transition: opacity 0.3s var(--ease);
-        }
+  --good:#2F9E68;
+  --good-soft:rgba(47,158,104,.12);
+  --warn:#C08A24;
+  --warn-soft:rgba(192,138,36,.12);
+  --alert:#D3574F;
+  --alert-soft:rgba(211,87,79,.12);
 
-        .theme-icon.sun { filter: var(--icon-sun); position: absolute; }
-        .theme-icon.moon { filter: var(--icon-moon); }
+  --track:rgba(35,40,66,.08);
+  --shadow:0 30px 60px -20px rgba(35,40,66,.18);
+}
 
-        /* --- Main Card --- */
-        .card {
-            background: var(--card-base);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-main);
-            backdrop-filter: blur(20px);
-            padding: 3rem 2rem;
-            max-width: 480px;
-            width: 100%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            text-align: center;
-        }
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font-body);
+  background:var(--bg-grad);
+  color:var(--ink);
+  min-height:100vh;
+  padding:1.25rem 1rem 5rem;
+  transition:background .4s var(--ease), color .4s var(--ease);
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--dawn); color:#1a1200;}
+img,svg{display:block;}
+button{font-family:inherit;}
+input,select,button{color-scheme:dark;}
+[data-theme="light"] input,[data-theme="light"] select,[data-theme="light"] button{color-scheme:light;}
 
-        h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: var(--bg-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+.wrap{max-width:640px; margin:0 auto;}
 
-        p.subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; font-weight: 500; }
+/* ---------- Top bar ---------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.25rem .25rem 1.5rem;
+}
+.brand{display:flex; align-items:center; gap:.6rem;}
+.brand-mark{
+  width:38px; height:38px; border-radius:12px;
+  background:linear-gradient(135deg, var(--dusk), var(--dawn));
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; box-shadow:0 8px 20px -6px rgba(91,75,138,.6);
+}
+.brand-text{font-family:var(--font-display); font-weight:700; font-size:1.15rem; letter-spacing:-.02em;}
+.brand-sub{font-size:.72rem; color:var(--ink-faint); font-weight:500; margin-top:-2px;}
 
-        /* --- Mode Switcher --- */
-        .mode-switcher {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            background: var(--input-bg);
-            border-radius: var(--radius-btn);
-            padding: 5px;
-            margin-bottom: 2rem;
-            border: 1px solid var(--card-border);
-        }
+.icon-btn{
+  background:var(--card); border:1px solid var(--border); color:var(--ink);
+  width:42px; height:42px; border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .25s var(--ease), border-color .25s;
+}
+.icon-btn:hover{transform:translateY(-2px); border-color:var(--border-strong);}
+.icon-btn svg{width:19px; height:19px;}
+.icon-sun{display:none;}
+[data-theme="light"] .icon-moon{display:none;}
+[data-theme="light"] .icon-sun{display:block;}
 
-        .mode-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px 5px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s var(--ease);
-        }
+/* ---------- Cards ---------- */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--r-xl);
+  box-shadow:var(--shadow);
+  padding:1.6rem 1.4rem;
+  margin-bottom:1rem;
+}
+.card-tight{padding:1.3rem 1.2rem;}
 
-        .mode-btn.active {
-            background: var(--bg-accent);
-            color: #ffffff;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
+.section-eyebrow{
+  font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--dawn-soft); margin-bottom:.35rem;
+}
+.section-title{font-family:var(--font-display); font-size:1.3rem; font-weight:700; letter-spacing:-.01em;}
+.section-desc{color:var(--ink-dim); font-size:.9rem; margin-top:.35rem; line-height:1.5;}
 
-        /* --- Input Section --- */
-        .input-wrapper { display: flex; flex-direction: column; gap: 8px; margin-bottom: 2rem; text-align: left; }
-        label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-        input[type="time"] {
-            background: var(--input-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-main);
-            padding: 14px;
-            border-radius: var(--radius-btn);
-            font-size: 1.2rem;
-            font-weight: 600;
-            outline: none;
-            width: 100%;
-            transition: all 0.3s var(--ease);
-        }
-        input[type="time"]:focus { border-color: #a855f7; box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); }
+/* ---------- Hero ---------- */
+.hero{
+  border-radius:var(--r-xl);
+  padding:1.8rem 1.4rem 1.5rem;
+  background:linear-gradient(165deg, rgba(91,75,138,.20), rgba(242,166,90,.06) 60%, transparent), var(--card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  margin-bottom:1.25rem;
+  position:relative; overflow:hidden;
+}
+.hero::before{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(circle at 85% -10%, rgba(242,166,90,.18), transparent 45%);
+}
+.hero-head{display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.2rem;}
+.hero-eyebrow{font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-faint);}
+.tone-toggle{
+  display:flex; align-items:center; gap:.4rem; font-size:.72rem; color:var(--ink-faint);
+  background:var(--card-2); border:1px solid var(--border); padding:.3rem .55rem; border-radius:999px;
+  cursor:pointer; user-select:none; font-weight:600;
+}
+.tone-toggle .dot{width:8px; height:8px; border-radius:50%; background:var(--dawn); transition:transform .3s var(--ease);}
 
-        .btn-calc {
-            width: 100%;
-            background: var(--bg-accent);
-            color: #ffffff;
-            border: none;
-            padding: 14px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border-radius: var(--radius-btn);
-            cursor: pointer;
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
-            transition: all 0.3s var(--ease);
-        }
-        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.3); }
+.h1-line{font-family:var(--font-display); font-size:1.4rem; font-weight:600; line-height:1.35; margin:.6rem 0 1.2rem; color:var(--ink);}
+.h1-line strong{font-weight:700; background:linear-gradient(90deg, var(--dawn-soft), var(--blush)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
 
-        /* --- Results Section --- */
-        .results-title {
-            text-align: left;
-            margin: 2rem 0 1rem;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--text-main);
-            display: none; /* Hidden until calc */
-        }
+.ring-row{display:flex; align-items:center; gap:1.4rem;}
+.ring-wrap{position:relative; width:150px; height:150px; flex:none;}
+.ring-wrap svg{transform:rotate(0deg);}
+.ring-center{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+}
+.ring-num{font-family:var(--font-display); font-size:1.55rem; font-weight:700; line-height:1;}
+.ring-sub{font-size:.66rem; color:var(--ink-faint); font-weight:600; margin-top:3px; text-transform:uppercase; letter-spacing:.05em;}
 
-        .results { display: flex; flex-direction: column; gap: 12px; }
+.ring-track{fill:none; stroke:var(--track); stroke-width:11;}
+.ring-band{fill:none; stroke:var(--good); opacity:.28; stroke-width:11; stroke-linecap:round;}
+.ring-fill{fill:none; stroke-linecap:round; stroke-width:11; transition:stroke-dasharray .9s var(--ease), stroke .5s;}
 
-        .result-item {
-            background: var(--card-base);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.3s var(--ease);
-        }
-        .result-item:hover { transform: scale(1.02); }
+.hero-side{flex:1; min-width:0;}
+.status-pill{
+  display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .75rem; border-radius:999px;
+  font-size:.78rem; font-weight:700; margin-bottom:.6rem;
+}
+.status-pill.green{background:var(--good-soft); color:var(--good);}
+.status-pill.yellow{background:var(--warn-soft); color:var(--warn);}
+.status-pill.red{background:var(--alert-soft); color:var(--alert);}
+.rec-line{font-size:.85rem; color:var(--ink-dim); line-height:1.5;}
+.rec-line b{color:var(--ink); font-weight:700;}
+.diff-line{font-size:.85rem; margin-top:.5rem; line-height:1.5; color:var(--ink-dim); border-top:1px dashed var(--border); padding-top:.6rem;}
 
-        .result-item.best { border-color: var(--result-best); }
-        .result-item.ok { border-color: var(--result-ok); }
+/* ---------- Score ---------- */
+.score-row{display:flex; align-items:center; gap:1.1rem; margin-top:1.2rem; padding-top:1.2rem; border-top:1px solid var(--border);}
+.score-badge{
+  font-family:var(--font-display); font-weight:700; font-size:1.5rem;
+  width:74px; height:74px; border-radius:50%; flex:none;
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  background:var(--card-2); border:2px solid var(--dusk);
+  position:relative;
+}
+.score-badge small{font-size:.58rem; font-weight:700; color:var(--ink-faint); margin-top:-2px;}
+.score-copy .label{font-size:.68rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.2rem;}
+.score-copy p{font-size:.88rem; color:var(--ink-dim); line-height:1.45;}
 
-        .result-time-block { text-align: left; }
-        .result-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
-        .result-time { font-size: 1.5rem; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+/* ---------- Mode switch / inputs ---------- */
+.seg{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:5px;
+  background:var(--card-2); border:1px solid var(--border); border-radius:var(--r-md); padding:4px; margin-bottom:1.1rem;
+}
+.seg button{
+  background:none; border:none; color:var(--ink-faint); font-weight:600; font-size:.78rem;
+  padding:.6rem .3rem; border-radius:9px; cursor:pointer; transition:all .25s var(--ease);
+}
+.seg button.active{background:linear-gradient(135deg, var(--dusk), var(--twilight)); color:#fff; box-shadow:0 6px 14px -4px rgba(91,75,138,.6);}
 
-        .result-meta { text-align: right; }
-        .result-cycles { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
-        .result-hrs { font-size: 0.8rem; color: var(--text-muted); }
+.mode-copy{font-size:.82rem; color:var(--ink-faint); margin:-.4rem 0 1.1rem; line-height:1.4;}
 
-        .badge {
-            display: inline-block;
-            font-size: 0.7rem;
-            padding: 3px 7px;
-            border-radius: 6px;
-            font-weight: 700;
-            margin-left: 5px;
-            vertical-align: middle;
-        }
-        .result-item.best .badge { background: var(--result-best); color: #ffffff; }
-        .result-item.ok .badge { background: var(--result-ok); color: #ffffff; }
-    </style>
+.field-grid{display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:.8rem;}
+.field{display:flex; flex-direction:column; gap:.4rem;}
+.field label{font-size:.76rem; font-weight:600; color:var(--ink-dim);}
+.field input, .field select{
+  background:var(--card-2); border:1px solid var(--border); color:var(--ink);
+  padding:.72rem .8rem; border-radius:var(--r-sm); font-size:1rem; font-weight:600; width:100%;
+  transition:border-color .2s, box-shadow .2s;
+}
+.field input:focus, .field select:focus{outline:none; border-color:var(--dawn); box-shadow:0 0 0 3px rgba(242,166,90,.18);}
+.field.error input{border-color:var(--alert); animation:shake .3s;}
+.field-hint{font-size:.72rem; color:var(--alert); min-height:1em;}
+
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+
+.manual-toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+  background:var(--card-2); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:.7rem .9rem; margin-bottom:1rem; cursor:pointer; user-select:none;
+}
+.manual-toggle span{font-size:.82rem; font-weight:600; color:var(--ink-dim);}
+.switch{width:38px; height:22px; border-radius:999px; background:var(--track); position:relative; flex:none; transition:background .25s;}
+.switch::after{content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:var(--ink); transition:transform .25s var(--ease);}
+.manual-toggle.on .switch{background:var(--dusk);}
+.manual-toggle.on .switch::after{transform:translateX(16px); background:#fff;}
+
+.duration-fields{display:none; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:.8rem;}
+.duration-fields.show{display:grid;}
+.time-fields{display:grid; grid-template-columns:1fr 1fr; gap:.8rem;}
+.time-fields.hide{display:none;}
+
+.btn-primary{
+  width:100%; border:none; cursor:pointer; padding:.95rem; border-radius:var(--r-md);
+  background:linear-gradient(135deg, var(--dusk), var(--dawn)); color:#fff;
+  font-weight:700; font-size:.95rem; letter-spacing:.01em;
+  box-shadow:0 14px 26px -10px rgba(91,75,138,.55);
+  transition:transform .2s var(--ease), box-shadow .2s;
+  margin-top:.3rem;
+}
+.btn-primary:hover{transform:translateY(-2px); box-shadow:0 18px 30px -8px rgba(91,75,138,.6);}
+.btn-primary:active{transform:translateY(0);}
+
+/* ---------- Quick nav ---------- */
+.quicknav{
+  display:none; gap:.5rem; overflow-x:auto; padding:.2rem .1rem 1rem; margin:-.2rem 0 .2rem;
+  scrollbar-width:none;
+}
+.quicknav::-webkit-scrollbar{display:none;}
+.quicknav.show{display:flex;}
+.quicknav a{
+  flex:none; font-size:.76rem; font-weight:600; color:var(--ink-dim); text-decoration:none;
+  background:var(--card); border:1px solid var(--border); padding:.45rem .85rem; border-radius:999px;
+  transition:all .2s;
+}
+.quicknav a:hover{color:var(--ink); border-color:var(--border-strong);}
+
+/* ---------- results reveal ---------- */
+.reveal{display:none;}
+.reveal.show{display:block; animation:fadeUp .5s var(--ease);}
+@keyframes fadeUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+/* ---------- pros/cons ---------- */
+.pc-list{list-style:none; display:flex; flex-direction:column; gap:.55rem; margin-top:1rem;}
+.pc-list li{display:flex; align-items:flex-start; gap:.6rem; font-size:.88rem; color:var(--ink-dim); line-height:1.4;}
+.pc-list li .ico{flex:none; width:22px; height:22px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:.75rem; margin-top:.05rem;}
+.pc-list.good .ico{background:var(--good-soft); color:var(--good);}
+.pc-list.watch .ico{background:var(--warn-soft); color:var(--warn);}
+
+/* ---------- persuasive ---------- */
+.persuade{
+  background:linear-gradient(150deg, rgba(238,143,166,.14), rgba(242,166,90,.06));
+  border:1px solid rgba(238,143,166,.25);
+}
+.compare-row{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:.8rem; margin:1.1rem 0;}
+.compare-col{text-align:center; background:var(--card-2); border:1px solid var(--border); border-radius:var(--r-md); padding:.9rem .5rem;}
+.compare-col .lbl{font-size:.65rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.3rem;}
+.compare-col .val{font-family:var(--font-display); font-size:1.15rem; font-weight:700;}
+.compare-arrow{font-size:1.1rem; color:var(--blush);}
+.persuade-msg{font-size:.9rem; color:var(--ink-dim); line-height:1.5; margin-top:.4rem;}
+.persuade-msg strong{color:var(--ink);}
+
+/* ---------- what-if ---------- */
+.slider-row{margin-top:1.2rem;}
+input[type="range"]{
+  -webkit-appearance:none; width:100%; height:6px; border-radius:999px;
+  background:linear-gradient(90deg, var(--alert), var(--warn) 45%, var(--good) 65%, var(--good) 100%);
+  outline:none; margin:1rem 0 .4rem;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:22px; height:22px; border-radius:50%;
+  background:var(--ink); border:4px solid var(--dusk); cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.3);
+}
+input[type="range"]::-moz-range-thumb{
+  width:22px; height:22px; border-radius:50%; background:var(--ink); border:4px solid var(--dusk); cursor:pointer;
+}
+.slider-label{display:flex; justify-content:space-between; font-size:.72rem; color:var(--ink-faint); font-weight:600;}
+.whatif-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:.6rem; margin-top:1.1rem;}
+.whatif-metric{background:var(--card-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:.8rem .5rem; text-align:center;}
+.whatif-metric .m-lbl{font-size:.66rem; color:var(--ink-faint); font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem;}
+.whatif-metric .m-val{font-size:.86rem; font-weight:700;}
+.whatif-metric .bar{height:5px; border-radius:999px; background:var(--track); margin-top:.5rem; overflow:hidden;}
+.whatif-metric .bar i{display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--dusk), var(--dawn)); transition:width .5s var(--ease);}
+
+/* ---------- bedtime rec ---------- */
+.bed-input-row{display:flex; align-items:flex-end; gap:.8rem; margin-bottom:1.1rem;}
+.bed-input-row .field{flex:1;}
+.bed-options{display:flex; flex-direction:column; gap:.6rem;}
+.bed-opt{
+  display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+  background:var(--card-2); border:1px solid var(--border); border-radius:var(--r-md); padding:.85rem 1rem;
+  transition:border-color .2s, transform .2s;
+}
+.bed-opt.hi{border-color:var(--dawn); background:linear-gradient(120deg, rgba(242,166,90,.12), transparent);}
+.bed-opt .bo-left{display:flex; align-items:center; gap:.7rem;}
+.bo-icon{width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:var(--card); font-size:1rem; flex:none;}
+.bo-time{font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
+.bo-sub{font-size:.72rem; color:var(--ink-faint); font-weight:600;}
+.bo-badge{font-size:.68rem; font-weight:700; padding:.28rem .6rem; border-radius:999px; background:var(--dawn); color:#221302;}
+
+.cycles-note{
+  margin-top:1rem; font-size:.78rem; color:var(--ink-faint); line-height:1.5;
+  background:var(--card-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:.7rem .85rem;
+}
+
+/* ---------- debt table ---------- */
+.debt-target{display:flex; align-items:center; gap:.7rem; margin-bottom:1rem; font-size:.85rem; color:var(--ink-dim);}
+.debt-target input{width:70px; background:var(--card-2); border:1px solid var(--border); color:var(--ink); border-radius:var(--r-sm); padding:.5rem .6rem; font-weight:700; text-align:center;}
+.day-row{display:grid; grid-template-columns:44px 1fr 1fr auto; gap:.5rem; align-items:center; margin-bottom:.5rem;}
+.day-row .day-lbl{font-size:.78rem; font-weight:700; color:var(--ink-faint);}
+.day-row input[type="number"]{
+  background:var(--card-2); border:1px solid var(--border); color:var(--ink); border-radius:var(--r-sm);
+  padding:.55rem .5rem; font-size:.88rem; font-weight:600; width:100%; text-align:center;
+}
+.day-row select{
+  background:var(--card-2); border:1px solid var(--border); color:var(--ink); border-radius:var(--r-sm);
+  padding:.55rem .3rem; font-size:.88rem; font-weight:600; width:100%; text-align:center;
+}
+.clr-btn{
+  background:none; border:1px solid var(--border); color:var(--ink-faint); width:30px; height:30px; border-radius:8px;
+  cursor:pointer; font-size:.8rem; flex:none;
+}
+.debt-summary{
+  margin-top:1.1rem; padding-top:1.1rem; border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+}
+.debt-num{font-family:var(--font-display); font-size:1.6rem; font-weight:700;}
+.debt-num.pos{color:var(--alert);}
+.debt-num.neg{color:var(--good);}
+.debt-cap{font-size:.72rem; color:var(--ink-faint); font-weight:600; text-transform:uppercase; letter-spacing:.05em;}
+.week-bars{display:flex; align-items:flex-end; gap:.4rem; height:90px; margin-top:1.1rem; padding-top:.5rem;}
+.week-bar-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:.35rem;}
+.week-bar{width:100%; border-radius:6px 6px 3px 3px; background:var(--track); position:relative; transition:height .5s var(--ease);}
+.week-bar.entered{background:linear-gradient(180deg, var(--dawn-soft), var(--dusk));}
+.week-bar-day{font-size:.62rem; color:var(--ink-faint); font-weight:700;}
+
+/* ---------- disclaimer / footer ---------- */
+.disclaimer{
+  font-size:.78rem; color:var(--ink-faint); line-height:1.55; text-align:center;
+  padding:1.2rem 1rem 0;
+}
+.disclaimer strong{color:var(--ink-dim);}
+.footer-note{text-align:center; font-size:.72rem; color:var(--ink-faint); margin-top:1rem;}
+
+@media (min-width:520px){
+  .field-grid{grid-template-columns:repeat(3,1fr);}
+  .day-row{grid-template-columns:50px 1fr 1fr auto;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important;}
+}
+</style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- Theme Toggle Button -->
-<div class="theme-toggle-container">
-    <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-btn" aria-label="Toggle Light/Dark Mode">
-        <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <svg class="theme-icon moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">🌙</div>
+      <div>
+        <div class="brand-text">Restful</div>
+        <div class="brand-sub">sleep, understood</div>
+      </div>
+    </div>
+    <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle light and dark mode">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     </button>
-</div>
+  </div>
 
-<div class="card">
-    <h1>Sleepy</h1>
-    <p class="subtitle">Optimal sleep requires 90-minute cycles</p>
+  <nav class="quicknav" id="quicknav">
+    <a href="#result-card">Overview</a>
+    <a href="#pc-card">What it means</a>
+    <a href="#whatif-card">What if</a>
+    <a href="#bedtime-card">Bedtime</a>
+    <a href="#debt-card">Sleep debt</a>
+  </nav>
 
-    <div class="mode-switcher">
-        <button class="mode-btn active" id="btn-now" onclick="setCalcMode('now')">Sleep Now</button>
-        <button class="mode-btn" id="btn-wake" onclick="setCalcMode('wake')">Target Wake</button>
-        <button class="mode-btn" id="btn-sleep" onclick="setCalcMode('sleep')">Target Bed</button>
+  <!-- ===================== CALCULATOR ===================== -->
+  <section class="card" id="calc-card">
+    <div class="section-eyebrow">Sleep calculator</div>
+    <div class="section-title">Tutulog pa ba?</div>
+    <p class="section-desc">Ilang oras ka matutulog? tutulog paba?</p>
+
+    <div class="seg" style="margin-top:1.2rem;" role="tablist" aria-label="Calculation mode">
+      <button class="active" id="seg-tonight" onclick="setMode('tonight')">Tonight</button>
+      <button id="seg-average" onclick="setMode('average')">Average</button>
+      <button id="seg-recurring" onclick="setMode('recurring')">Recurring</button>
+    </div>
+    <p class="mode-copy" id="mode-copy">Sige, Calculate mo tulog mo.</p>
+
+    <div class="manual-toggle" id="manual-toggle" onclick="toggleManual()">
+      <span>Usual sleep duration mo?</span>
+      <div class="switch"></div>
     </div>
 
-    <div class="input-wrapper" id="time-input-section" style="display: none;">
-        <label id="input-label" for="user-time">I want to wake up at:</label>
-        <input type="time" id="user-time" value="07:00">
+    <div class="time-fields" id="time-fields">
+      <div class="field" id="field-bed">
+        <label for="bedtime">Bedtime</label>
+        <input type="time" id="bedtime" value="23:30">
+      </div>
+      <div class="field" id="field-wake">
+        <label for="waketime">Wake-up time</label>
+        <input type="time" id="waketime" value="07:00">
+      </div>
     </div>
 
-    <button class="btn-calc" onclick="calculate()">Calculate Optimal Times</button>
+    <div class="duration-fields" id="duration-fields">
+      <div class="field">
+        <label for="dur-h">Usual hours</label>
+        <input type="number" id="dur-h" min="0" max="16" value="6">
+      </div>
+      <div class="field">
+        <label for="dur-m">Usual minutes</label>
+        <input type="number" id="dur-m" min="0" max="59" step="5" value="0">
+      </div>
+    </div>
 
-    <div class="results-title" id="results-head">Recommended Times</div>
-    <div class="results" id="results"></div>
+    <div class="field-grid" style="margin-top:.2rem;">
+      <div class="field">
+        <label for="nap">Nap (optional, min)</label>
+        <input type="number" id="nap" min="0" max="240" step="5" value="0">
+      </div>
+      <div class="field">
+        <label for="age">Your age</label>
+        <input type="number" id="age" min="0" max="110" value="28">
+      </div>
+    </div>
+    <p class="field-hint" id="calc-hint"></p>
+
+    <button class="btn-primary" onclick="handleCalculate()">Calculate my sleep</button>
+  </section>
+
+  <!-- ===================== HERO RESULT ===================== -->
+  <section class="hero reveal" id="result-card">
+    <div class="hero-head">
+      <div class="hero-eyebrow" id="hero-eyebrow">Last night</div>
+      <div class="tone-toggle" id="tone-toggle" onclick="toggleTone()">
+        <span class="dot"></span> <span id="tone-label">Playful</span>
+      </div>
+    </div>
+    <div class="h1-line" id="hero-line">You're getting <strong id="hero-strong">7h 30m</strong> of sleep.</div>
+
+    <div class="ring-row">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 200 200" width="150" height="150">
+          <circle class="ring-track" cx="100" cy="100" r="85"></circle>
+          <circle class="ring-band" id="ring-band" cx="100" cy="100" r="85"></circle>
+          <circle class="ring-fill" id="ring-fill" cx="100" cy="100" r="85" transform="rotate(-90 100 100)"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-num" id="ring-num">7h 30m</div>
+          <div class="ring-sub">asleep</div>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="status-pill green" id="status-pill">🟢 Within recommended range</div>
+        <div class="rec-line" id="rec-line">Recommended: <b>7–9 hours</b> for your age.</div>
+        <div class="diff-line" id="diff-line">You're right in your sweet spot tonight.</div>
+      </div>
+    </div>
+
+    <div class="score-row">
+      <div class="score-badge" id="score-badge">92<small>/100</small></div>
+      <div class="score-copy">
+        <div class="label">Sleep score · estimate</div>
+        <p id="score-copy">Pretty good — you're close to your recommended range.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROS / CONS ===================== -->
+  <section class="card reveal" id="pc-card">
+    <div class="section-eyebrow" id="pc-eyebrow">What this means</div>
+    <div class="section-title" id="pc-title">Benefits you may notice</div>
+    <ul class="pc-list good" id="pc-list"></ul>
+  </section>
+
+  <!-- ===================== PERSUASIVE ===================== -->
+  <section class="card persuade reveal" id="persuade-card">
+    <div class="section-eyebrow">Worth knowing</div>
+    <div class="section-title" id="persuade-title">You're running on less sleep than your body usually needs</div>
+    <div class="compare-row">
+      <div class="compare-col">
+        <div class="lbl">Current</div>
+        <div class="val" id="cmp-current">5h 42m</div>
+      </div>
+      <div class="compare-arrow">→</div>
+      <div class="compare-col">
+        <div class="lbl">Recommended</div>
+        <div class="val" id="cmp-rec">7–9h</div>
+      </div>
+    </div>
+    <p class="persuade-msg" id="persuade-msg">Try giving yourself another <strong>1h 18m</strong> tonight. That extra time isn't wasted — it's time your brain and body can use for recovery.</p>
+  </section>
+
+  <!-- ===================== WHAT IF ===================== -->
+  <section class="card reveal" id="whatif-card">
+    <div class="section-eyebrow">Interactive</div>
+    <div class="section-title">What if you slept more?</div>
+    <p class="section-desc">Drag the slider to see how sleep duration generally relates to how you might feel — these are general patterns, not a guarantee.</p>
+    <div class="slider-row">
+      <input type="range" id="whatif-slider" min="4" max="10" step="0.5" value="7" oninput="renderWhatIf()">
+      <div class="slider-label"><span>4h</span><span id="whatif-current">7h</span><span>10h</span></div>
+    </div>
+    <div class="whatif-grid">
+      <div class="whatif-metric">
+        <div class="m-lbl">Energy</div>
+        <div class="m-val" id="wi-energy">Better</div>
+        <div class="bar"><i id="wi-energy-bar" style="width:60%"></i></div>
+      </div>
+      <div class="whatif-metric">
+        <div class="m-lbl">Focus</div>
+        <div class="m-val" id="wi-focus">Better</div>
+        <div class="bar"><i id="wi-focus-bar" style="width:60%"></i></div>
+      </div>
+      <div class="whatif-metric">
+        <div class="m-lbl">Recovery</div>
+        <div class="m-val" id="wi-recovery">Improved</div>
+        <div class="bar"><i id="wi-recovery-bar" style="width:60%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BEDTIME RECOMMENDATION ===================== -->
+  <section class="card" id="bedtime-card">
+    <div class="section-eyebrow">Plan ahead</div>
+    <div class="section-title">What time should you sleep?</div>
+    <p class="section-desc">Tell us when you need to wake up, and we'll suggest a few bedtimes to aim for.</p>
+
+    <div class="bed-input-row">
+      <div class="field">
+        <label for="target-wake">Wake-up time</label>
+        <input type="time" id="target-wake" value="07:00" oninput="renderBedtime()">
+      </div>
+    </div>
+
+    <div class="bed-options" id="bed-options"></div>
+
+    <p class="cycles-note">Note: sleep cycles are often estimated around 90 minutes, but this varies from person to person and isn't a precise scheduling tool — think of these as friendly targets, not rules.</p>
+  </section>
+
+  <!-- ===================== SLEEP DEBT ===================== -->
+  <section class="card" id="debt-card">
+    <div class="section-eyebrow">Weekly view</div>
+    <div class="section-title">Sleep debt calculator</div>
+    <p class="section-desc">Log a few nights and we'll estimate how your week compares to your target.</p>
+
+    <div class="debt-target">
+      <span>Target per night:</span>
+      <input type="number" id="debt-target" min="4" max="12" step="0.5" value="8" oninput="renderDebt()">
+      <span>hours</span>
+    </div>
+
+    <div id="debt-rows"></div>
+
+    <div class="debt-summary">
+      <div>
+        <div class="debt-cap">Estimated weekly balance</div>
+        <div class="debt-num" id="debt-total">0h 0m</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="debt-cap">Nights logged</div>
+        <div class="debt-num" id="debt-count" style="font-size:1.2rem;">0</div>
+      </div>
+    </div>
+
+    <div class="week-bars" id="week-bars"></div>
+    <p class="field-hint" id="debt-note" style="color:var(--ink-faint); margin-top:.8rem;">This is a simple estimate, not a precise measure of biological sleep debt.</p>
+  </section>
+
+  <p class="disclaimer">
+    <strong>Just so you know:</strong> Restful is a wellness calculator, not a medical diagnostic tool. Sleep needs vary from person to person, and this provides general wellness information rather than a substitute for medical advice. If you're consistently getting very little sleep, it's worth talking to a healthcare professional.
+  </p>
+  <p class="footer-note">Made with 🌙 for better nights.</p>
+
 </div>
 
 <script>
-    const LATENCY = 14; // Average mins to fall asleep
-    let currentCalcMode = 'now';
+/* ============================================================
+   STATE
+============================================================ */
+let mode = 'tonight';          // tonight | average | recurring
+let manualMode = false;        // manual duration entry vs time inputs
+let playful = true;            // tone toggle
+let lastResult = null;         // last computed calculation object
 
-    // --- Theme Logic ---
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('sleepy-theme', theme);
+const CIRC = 2 * Math.PI * 85; // ring circumference
+const SCALE_MAX = 10;          // hours represented by a full ring
+
+/* ============================================================
+   THEME
+============================================================ */
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); }
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+applyTheme(prefersDark.matches ? 'dark' : 'light');
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+}
+
+/* ============================================================
+   RECOMMENDED SLEEP BY AGE  (general wellness guidance)
+============================================================ */
+function getRecommendation(age){
+  if(age < 1)  return {min:12, max:15, label:'infants'};
+  if(age <= 2) return {min:11, max:14, label:'toddlers'};
+  if(age <= 5) return {min:10, max:13, label:'preschoolers'};
+  if(age <= 13)return {min:9,  max:11, label:'school-age kids'};
+  if(age <= 17)return {min:8,  max:10, label:'teens'};
+  if(age <= 64)return {min:7,  max:9,  label:'adults'};
+  return {min:7, max:8, label:'older adults'};
+}
+
+/* ============================================================
+   TIME HELPERS
+============================================================ */
+function parseTimeToMinutes(str){
+  if(!str) return null;
+  const [h,m] = str.split(':').map(Number);
+  if(Number.isNaN(h) || Number.isNaN(m)) return null;
+  return h*60+m;
+}
+function crossMidnightDiff(bedMin, wakeMin){
+  let diff = wakeMin - bedMin;
+  if(diff <= 0) diff += 1440;
+  return diff;
+}
+function formatHM(totalMinutes){
+  totalMinutes = Math.max(0, Math.round(totalMinutes));
+  const h = Math.floor(totalMinutes/60);
+  const m = totalMinutes%60;
+  return `${h}h ${m}m`;
+}
+function fmtClock(min){
+  min = ((min%1440)+1440)%1440;
+  const h24 = Math.floor(min/60), m = min%60;
+  const ampm = h24 >= 12 ? 'PM' : 'AM';
+  let h12 = h24 % 12; if(h12===0) h12 = 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+/* ============================================================
+   MODE SWITCH
+============================================================ */
+const modeCopy = {
+  tonight: "We'll calculate last night's sleep from your bedtime and wake-up time.",
+  average: "We'll treat this as a typical night, and use it to estimate your average.",
+  recurring: "We'll assume this schedule repeats most nights, and project your weekly picture from it."
+};
+const modeEyebrow = {
+  tonight: 'Last night',
+  average: 'Your average night',
+  recurring: 'Your recurring schedule'
+};
+function setMode(m){
+  mode = m;
+  ['tonight','average','recurring'].forEach(id=>{
+    document.getElementById('seg-'+id).classList.toggle('active', id===m);
+  });
+  document.getElementById('mode-copy').textContent = modeCopy[m];
+  if(lastResult) document.getElementById('hero-eyebrow').textContent = modeEyebrow[m];
+}
+
+function toggleManual(){
+  manualMode = !manualMode;
+  document.getElementById('manual-toggle').classList.toggle('on', manualMode);
+  document.getElementById('duration-fields').classList.toggle('show', manualMode);
+  document.getElementById('time-fields').classList.toggle('hide', manualMode);
+}
+
+function toggleTone(){
+  playful = !playful;
+  document.getElementById('tone-toggle').querySelector('.dot').style.transform = playful ? 'scale(1)' : 'scale(0.6)';
+  document.getElementById('tone-label').textContent = playful ? 'Playful' : 'Gentle';
+  if(lastResult) renderResult(lastResult);
+}
+
+/* ============================================================
+   SCORE
+============================================================ */
+function computeScore(totalHours, min, max){
+  const center = (min+max)/2;
+  let score;
+  if(totalHours >= min && totalHours <= max){
+    score = 97 - Math.abs(totalHours-center) * 4;
+  } else if(totalHours < min){
+    const deficit = min - totalHours;
+    score = 88 - deficit * 21;
+  } else {
+    const surplus = totalHours - max;
+    score = 90 - surplus * 7;
+  }
+  return Math.round(Math.max(4, Math.min(98, score)));
+}
+function scoreCopy(score){
+  if(score >= 85) return "You're doing great — your sleep looks solid.";
+  if(score >= 70) return "Pretty good — you're close to your recommended sleep range.";
+  if(score >= 50) return "Getting there — a bit more sleep would put you in a better spot.";
+  if(score >= 30) return "Your body could really use more sleep.";
+  return "This is a big sleep deficit — try to prioritize rest tonight.";
+}
+
+/* ============================================================
+   VALIDATION + MAIN CALCULATION
+============================================================ */
+function handleCalculate(){
+  const hint = document.getElementById('calc-hint');
+  hint.textContent = '';
+  document.getElementById('field-bed').classList.remove('error');
+  document.getElementById('field-wake').classList.remove('error');
+
+  let totalNightMinutes;
+
+  if(manualMode){
+    const h = Number(document.getElementById('dur-h').value) || 0;
+    const m = Number(document.getElementById('dur-m').value) || 0;
+    totalNightMinutes = h*60+m;
+    if(totalNightMinutes <= 0){
+      hint.textContent = 'Enter your usual sleep duration to continue.';
+      return;
     }
+  } else {
+    const bedStr = document.getElementById('bedtime').value;
+    const wakeStr = document.getElementById('waketime').value;
+    const bedMin = parseTimeToMinutes(bedStr);
+    const wakeMin = parseTimeToMinutes(wakeStr);
+    if(bedMin === null || wakeMin === null){
+      hint.textContent = 'Please enter both a bedtime and a wake-up time.';
+      if(bedMin===null) document.getElementById('field-bed').classList.add('error');
+      if(wakeMin===null) document.getElementById('field-wake').classList.add('error');
+      return;
+    }
+    totalNightMinutes = crossMidnightDiff(bedMin, wakeMin);
+  }
 
-    // Detect system preference and stored preference
-    const storedTheme = localStorage.getItem('sleepy-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const napMinutes = Math.max(0, Number(document.getElementById('nap').value) || 0);
+  const totalMinutes = totalNightMinutes + napMinutes;
+  const age = Math.max(0, Number(document.getElementById('age').value) || 28);
+  const rec = getRecommendation(age);
+  const totalHours = totalMinutes/60;
 
-    if (storedTheme) {
-        applyTheme(storedTheme);
+  let cls;
+  if(totalHours >= rec.min) cls = 'green';
+  else if(rec.min - totalHours <= 1.5) cls = 'yellow';
+  else cls = 'red';
+
+  const score = computeScore(totalHours, rec.min, rec.max);
+
+  const result = { totalMinutes, totalHours, rec, cls, score, age, napMinutes };
+  lastResult = result;
+
+  renderResult(result);
+  document.getElementById('hero-eyebrow').textContent = modeEyebrow[mode];
+
+  // reveal sections
+  ['result-card','pc-card','whatif-card'].forEach(id=>{
+    document.getElementById(id).classList.add('show');
+  });
+  document.getElementById('persuade-card').classList.toggle('show', cls !== 'green');
+  document.getElementById('persuade-card').classList.add('reveal');
+  document.getElementById('quicknav').classList.add('show');
+
+  // seed the what-if slider near the actual duration
+  const slider = document.getElementById('whatif-slider');
+  slider.value = Math.min(10, Math.max(4, Math.round(totalHours*2)/2));
+  renderWhatIf();
+
+  // sync bedtime tool's wake input to the entered wake time, if available
+  if(!manualMode){
+    const w = document.getElementById('waketime').value;
+    if(w) document.getElementById('target-wake').value = w;
+  }
+  renderBedtime();
+
+  setTimeout(()=>{ document.getElementById('result-card').scrollIntoView({behavior:'smooth', block:'start'}); }, 60);
+}
+
+/* ============================================================
+   RENDER: HERO / RING / SCORE / PROS-CONS / PERSUADE
+============================================================ */
+function renderResult(r){
+  const { totalMinutes, totalHours, rec, cls, score } = r;
+
+  document.getElementById('hero-strong').textContent = formatHM(totalMinutes);
+  document.getElementById('hero-line').innerHTML = `You're getting <strong id="hero-strong">${formatHM(totalMinutes)}</strong> of sleep.`;
+  document.getElementById('ring-num').textContent = formatHM(totalMinutes);
+
+  // ring fill
+  const fillFrac = Math.min(1, totalHours / SCALE_MAX);
+  const fillLen = CIRC * fillFrac;
+  const ringFill = document.getElementById('ring-fill');
+  ringFill.setAttribute('stroke-dasharray', `${fillLen} ${CIRC}`);
+  ringFill.style.stroke = cls==='green' ? 'url(#none)' : 'currentColor';
+  const colorMap = {green:'var(--good)', yellow:'var(--warn)', red:'var(--alert)'};
+  ringFill.style.stroke = colorMap[cls];
+
+  // recommended band on ring
+  const band = document.getElementById('ring-band');
+  const bandLen = CIRC * ((rec.max - rec.min) / SCALE_MAX);
+  const bandStartFrac = rec.min / SCALE_MAX;
+  band.setAttribute('stroke-dasharray', `${bandLen} ${CIRC}`);
+  band.setAttribute('transform', `rotate(${-90 + bandStartFrac*360} 100 100)`);
+
+  // status pill
+  const pill = document.getElementById('status-pill');
+  pill.className = 'status-pill ' + cls;
+  if(cls==='green'){
+    pill.textContent = totalHours > rec.max ? '🟢 Above recommended range' : '🟢 Within recommended range';
+  } else if(cls==='yellow'){
+    pill.textContent = '🟡 Slightly below recommended';
+  } else {
+    pill.textContent = '🔴 Significantly below recommended';
+  }
+
+  document.getElementById('rec-line').innerHTML = `Recommended: <b>${rec.min}–${rec.max} hours</b> for your age.`;
+
+  const diffLine = document.getElementById('diff-line');
+  if(totalHours < rec.min){
+    const shortBy = (rec.min - totalHours) * 60;
+    diffLine.textContent = `You're short by approximately ${formatHM(shortBy)} from the lower end of the recommended range.`;
+  } else if(totalHours > rec.max){
+    diffLine.textContent = `That's more than the typical range — usually fine, just notice how rested you actually feel.`;
+  } else {
+    diffLine.textContent = `You're right in your sweet spot tonight.`;
+  }
+
+  // score
+  document.getElementById('score-badge').innerHTML = `${score}<small>/100</small>`;
+  document.getElementById('score-copy').textContent = scoreCopy(score);
+  const badge = document.getElementById('score-badge');
+  badge.style.borderColor = colorMap[cls];
+
+  renderProsCons(r);
+  renderPersuade(r);
+}
+
+function renderProsCons(r){
+  const { totalHours, rec, cls } = r;
+  const eyebrow = document.getElementById('pc-eyebrow');
+  const title = document.getElementById('pc-title');
+  const list = document.getElementById('pc-list');
+  list.innerHTML = '';
+
+  if(totalHours >= rec.min){
+    eyebrow.textContent = 'What this means';
+    title.textContent = 'Benefits you may notice';
+    list.className = 'pc-list good';
+    const items = [
+      'Better attention and concentration',
+      'Better mood regulation',
+      'Better physical recovery',
+      'Better learning and memory',
+      'Better daytime energy'
+    ];
+    items.forEach(t=>{
+      list.innerHTML += `<li><span class="ico">✓</span><span>${t}</span></li>`;
+    });
+  } else {
+    eyebrow.textContent = 'What this means';
+    title.textContent = 'What you may notice';
+    list.className = 'pc-list watch';
+    const items = [
+      'More daytime sleepiness',
+      'Reduced concentration',
+      'Slower reaction time',
+      'Irritability or mood changes',
+      'Harder time learning and remembering things',
+      'Reduced physical recovery'
+    ];
+    items.forEach(t=>{
+      list.innerHTML += `<li><span class="ico">•</span><span>${t}</span></li>`;
+    });
+    if(cls === 'red'){
+      list.innerHTML += `<li><span class="ico">💛</span><span>${playful ? "Please go to bed early tonight. Your future self will thank you." : "This is a meaningful shortfall — prioritizing sleep tonight would likely help a lot."}</span></li>`;
+    }
+  }
+}
+
+function renderPersuade(r){
+  const { totalMinutes, totalHours, rec, cls } = r;
+  const title = document.getElementById('persuade-title');
+  const msg = document.getElementById('persuade-msg');
+  document.getElementById('cmp-current').textContent = formatHM(totalMinutes);
+  document.getElementById('cmp-rec').textContent = `${rec.min}–${rec.max}h`;
+
+  if(cls === 'green') return;
+
+  const shortByMin = Math.max(0, (rec.min - totalHours) * 60);
+  const shortByFmt = formatHM(shortByMin);
+
+  let heading, body;
+  if(cls === 'red'){
+    heading = playful ? "Bading... this is not a full night's sleep 😭" : "This is a significant gap from what your body likely needs.";
+    body = playful
+      ? `Te, you need to sleep 😭 Try giving yourself another <strong>${shortByFmt}</strong> tonight — that extra time isn't wasted, it's time your brain and body can use for recovery.`
+      : `Try giving yourself another <strong>${shortByFmt}</strong> tonight. That extra time isn't wasted — it's time your brain and body can use for recovery.`;
+  } else {
+    heading = "You're running on less sleep than your body usually needs te";
+    body = playful
+      ? `You're getting close! An extra <strong>${shortByFmt}</strong> would put you in a much better range.`
+      : `Try giving yourself another <strong>${shortByFmt}</strong> tonight. That extra time isn't wasted — it's time your brain and body can use for recovery.`;
+  }
+  title.textContent = heading;
+  msg.innerHTML = body;
+}
+
+/* ============================================================
+   WHAT-IF SLIDER
+============================================================ */
+function whatIfLevels(hours, rec){
+  if(!rec) rec = {min:7, max:9};
+  if(hours >= rec.min && hours <= rec.max){
+    return {energy:['Strong',95], focus:['Strong',95], recovery:['Strong',95]};
+  }
+  if(hours >= rec.min - 1.5 && hours < rec.min){
+    return {energy:['Better',70], focus:['Better',68], recovery:['Improved',65]};
+  }
+  if(hours > rec.max){
+    return {energy:['Good',80], focus:['Good',78], recovery:['Good',80]};
+  }
+  return {energy:['Low',30], focus:['Lower',28], recovery:['Limited',25]};
+}
+function renderWhatIf(){
+  const slider = document.getElementById('whatif-slider');
+  const hours = Number(slider.value);
+  document.getElementById('whatif-current').textContent = `${hours}h`;
+  const rec = lastResult ? lastResult.rec : {min:7, max:9};
+  const lv = whatIfLevels(hours, rec);
+  document.getElementById('wi-energy').textContent = lv.energy[0];
+  document.getElementById('wi-energy-bar').style.width = lv.energy[1]+'%';
+  document.getElementById('wi-focus').textContent = lv.focus[0];
+  document.getElementById('wi-focus-bar').style.width = lv.focus[1]+'%';
+  document.getElementById('wi-recovery').textContent = lv.recovery[0];
+  document.getElementById('wi-recovery-bar').style.width = lv.recovery[1]+'%';
+}
+renderWhatIf();
+
+/* ============================================================
+   BEDTIME RECOMMENDATION
+============================================================ */
+function renderBedtime(){
+  const wakeStr = document.getElementById('target-wake').value;
+  const wakeMin = parseTimeToMinutes(wakeStr);
+  const box = document.getElementById('bed-options');
+  box.innerHTML = '';
+  if(wakeMin === null) return;
+
+  const durations = [
+    {h:9, icon:'🌌', tag:'Generous'},
+    {h:8, icon:'🌙', tag:'Recommended'},
+    {h:7, icon:'✨', tag:'Minimum-ish'}
+  ];
+  durations.forEach(d=>{
+    const bedMin = wakeMin - d.h*60;
+    const isHi = d.h === 8;
+    box.innerHTML += `
+      <div class="bed-opt ${isHi ? 'hi' : ''}">
+        <div class="bo-left">
+          <div class="bo-icon">${d.icon}</div>
+          <div>
+            <div class="bo-time">${fmtClock(bedMin)}</div>
+            <div class="bo-sub">${d.h} hours of sleep</div>
+          </div>
+        </div>
+        ${isHi ? '<div class="bo-badge">Recommended</div>' : ''}
+      </div>`;
+  });
+}
+renderBedtime();
+
+/* ============================================================
+   SLEEP DEBT
+============================================================ */
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function buildDebtRows(){
+  const container = document.getElementById('debt-rows');
+  container.innerHTML = DAYS.map((d,i)=>`
+    <div class="day-row">
+      <div class="day-lbl">${d}</div>
+      <input type="number" min="0" max="14" placeholder="hrs" id="debt-h-${i}" oninput="renderDebt()">
+      <select id="debt-m-${i}" onchange="renderDebt()">
+        <option value="0">:00</option>
+        <option value="15">:15</option>
+        <option value="30">:30</option>
+        <option value="45">:45</option>
+      </select>
+      <button class="clr-btn" onclick="clearDay(${i})" aria-label="Clear ${d}">✕</button>
+    </div>
+  `).join('');
+}
+function clearDay(i){
+  document.getElementById('debt-h-'+i).value = '';
+  document.getElementById('debt-m-'+i).value = '0';
+  renderDebt();
+}
+function renderDebt(){
+  const target = Number(document.getElementById('debt-target').value) || 8;
+  let enteredCount = 0;
+  let sumActual = 0;
+  let netDebtMinutes = 0;
+  const perDay = [];
+
+  DAYS.forEach((d,i)=>{
+    const hRaw = document.getElementById('debt-h-'+i).value;
+    const m = Number(document.getElementById('debt-m-'+i).value) || 0;
+    const hasEntry = hRaw !== '' && hRaw !== null;
+    const h = Number(hRaw) || 0;
+    if(hasEntry){
+      enteredCount++;
+      const actualHours = h + m/60;
+      sumActual += actualHours;
+      netDebtMinutes += (target - actualHours) * 60;
+      perDay.push({d, hours:actualHours, entered:true});
     } else {
-        applyTheme(systemPrefersDark.matches ? 'dark' : 'light');
+      perDay.push({d, hours:0, entered:false});
     }
+  });
 
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
-    }
+  document.getElementById('debt-count').textContent = enteredCount;
 
-    // --- Calculation Logic ---
-    function setCalcMode(mode) {
-        currentCalcMode = mode;
-        const btns = ['btn-now', 'btn-wake', 'btn-sleep'];
-        btns.forEach(id => document.getElementById(id).classList.toggle('active', id === `btn-${mode}`));
+  const totalEl = document.getElementById('debt-total');
+  if(enteredCount === 0){
+    totalEl.textContent = '—';
+    totalEl.className = 'debt-num';
+  } else if(netDebtMinutes > 0){
+    totalEl.textContent = formatHM(netDebtMinutes) + ' behind';
+    totalEl.className = 'debt-num pos';
+  } else if(netDebtMinutes < -5){
+    totalEl.textContent = formatHM(Math.abs(netDebtMinutes)) + ' ahead';
+    totalEl.className = 'debt-num neg';
+  } else {
+    totalEl.textContent = 'On target';
+    totalEl.className = 'debt-num neg';
+  }
 
-        const inputSection = document.getElementById('time-input-section');
-        const label = document.getElementById('input-label');
-        const calculateBtn = document.querySelector('.btn-calc');
+  // weekly bar chart
+  const barsEl = document.getElementById('week-bars');
+  const maxScale = Math.max(target + 2, ...perDay.map(p=>p.hours), 1);
+  barsEl.innerHTML = perDay.map(p=>{
+    const pct = p.entered ? Math.max(4, (p.hours/maxScale)*100) : 4;
+    return `
+      <div class="week-bar-col">
+        <div class="week-bar ${p.entered ? 'entered' : ''}" style="height:${pct}%"></div>
+        <div class="week-bar-day">${p.d}</div>
+      </div>`;
+  }).join('');
 
-        // Reset results display
-        document.getElementById('results-head').style.display = 'none';
-        document.getElementById('results').innerHTML = '';
-
-        if (mode === 'now') {
-            inputSection.style.display = 'none';
-            label.textContent = "";
-            calculateBtn.textContent = 'Calculate Wake Times';
-        } else if (mode === 'wake') {
-            inputSection.style.display = 'flex';
-            label.textContent = "I need to wake up at:";
-            calculateBtn.textContent = 'Calculate Bedtimes';
-        } else {
-            inputSection.style.display = 'flex';
-            label.textContent = "I'm going to bed at:";
-            calculateBtn.textContent = 'Calculate Wake Times';
-        }
-    }
-
-    function calculate() {
-        const container = document.getElementById('results');
-        container.innerHTML = '';
-        document.getElementById('results-head').style.display = 'block';
-
-        let targetTime = new Date();
-
-        if (currentCalcMode !== 'now') {
-            const timeVal = document.getElementById('user-time').value;
-            if (!timeVal) return;
-            const [hrs, mins] = timeVal.split(':').map(Number);
-            targetTime.setHours(hrs, mins, 0, 0);
-        }
-
-        // Cycle configurations [cycles, label]
-        const options = [
-            [6, "Excellent (9 hrs)"],
-            [5, "Optimal (7.5 hrs)"],
-            [4, "Okay (6 hrs)"],
-            [3, "Short (4.5 hrs)"]
-        ];
-
-        options.forEach(([cycles, durationLabel]) => {
-            let calcTime = new Date(targetTime.getTime());
-            const totalMins = (cycles * 90) + LATENCY;
-
-            if (currentCalcMode === 'wake') {
-                calcTime.setMinutes(calcTime.getMinutes() - totalMins);
-            } else {
-                calcTime.setMinutes(calcTime.getMinutes() + totalMins);
-            }
-
-            const isBedtimeCalc = currentCalcMode === 'wake';
-            const timeLabel = isBedtimeCalc ? 'Aim to sleep at:' : 'Set your alarm for:';
-            const formattedTime = calcTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            const qualityClass = cycles >= 5 ? 'best' : (cycles === 4 ? 'ok' : '');
-            const badge = cycles >= 5 ? '<span class="badge">Recommended</span>' : (cycles === 4 ? '<span class="badge">Functional</span>' : '');
-
-            const resultHTML = `
-                <div class="result-item ${qualityClass}">
-                    <div class="result-time-block">
-                        <div class="result-label">${timeLabel} ${badge}</div>
-                        <div class="result-time">${formattedTime}</div>
-                    </div>
-                    <div class="result-meta">
-                        <div class="result-cycles">${cycles} Cycles</div>
-                        <div class="result-hrs">${durationLabel}</div>
-                    </div>
-                </div>
-            `;
-            container.innerHTML += resultHTML;
-        });
-    }
-
-    calculate();
+  const note = document.getElementById('debt-note');
+  if(enteredCount >= 4 && (sumActual/enteredCount) < target - 2){
+    note.textContent = 'Your logged nights show a consistent, sizable shortfall. If this is a regular pattern, it may be worth talking to a healthcare professional. (This is a simple estimate, not a precise measure of biological sleep debt.)';
+  } else {
+    note.textContent = 'This is a simple estimate, not a precise measure of biological sleep debt.';
+  }
+}
+buildDebtRows();
+renderDebt();
 </script>
 </body>
 </html>
